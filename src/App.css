@@ -1,16 +1,65 @@
+/* General Body and Root Styling */
+body {
+  background-color: #000;
+  color: #fff; /* Default text color */
+  margin: 0;
+}
+
 #root {
-  max-width: 1280px;
+  max-width: 100%; /* Allow full width */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0; /* Remove default padding */
   text-align: center;
+}
+
+/* --- Animation Classes --- */
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+/* --- Element Styling --- */
+
+.main-header {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* Ensure it's on top initially */
+  width: 100%;
+}
+
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* Cover the entire screen */
+  z-index: -1; /* Place it behind everything */
+}
+
+.content-main {
+  /* This content appears as you scroll down */
+  position: relative; /* Needed to appear above the fixed video */
+  z-index: 5;
+  padding: 2rem;
+  max-width: 800px; /* For readability */
+  margin: 0 auto; /* Center the article */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
+  border-radius: 8px;
+}
+
+.content-main h2, .content-main h3, .content-main p {
+  text-align: left;
 }
 
 h3 {
     font-style: italic;
-}
-
-
-
-.read-the-docs {
-  color: #888;
 }
