@@ -6,6 +6,7 @@ import planetVideo from './assets/planet.mp4';
 import reactLogo from './assets/react-logo.png';
 import webstormLogo from './assets/WebStorm_Icon.svg';
 import geminiLogo from './assets/Google_Gemini_logo.svg';
+import githubLogo from './assets/github.svg';
 
 function App() {
   // --- State for scroll animations ---
@@ -108,6 +109,10 @@ function App() {
               <span>+</span>
               <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">
                 <img src={geminiLogo} className="logo-pulsing" alt="Gemini logo" />
+              </a>
+              <span>+</span>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <img src={githubLogo} className="logo-pulsing" alt="GitHub logo" />
               </a>
             </div>
           </article>

@@ -22,6 +22,7 @@ body {
 .fade-out {
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
+  pointer-events: none; /* Allow clicks to pass through invisible elements */
 }
 
 @keyframes pulse {
@@ -67,17 +68,17 @@ h3 {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1; /* Place it behind everything */
+  z-index: -1;
 }
 
 .background-video {
-  position: absolute; /* Stack videos on top of each other */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 1.5s ease-in-out; /* IMPORTANT: This duration must match FADE_DURATION in App.tsx */
+  transition: opacity 1.5s ease-in-out;
 }
 
 .video-active {
@@ -103,6 +104,12 @@ h3 {
   height: 3em;
   will-change: transform;
   animation: pulse 3s ease-in-out infinite;
+  transition: height 0.3s ease; /* Animate the height property */
+}
+
+.logo-pulsing:hover {
+  height: 4.5em; /* Increase height on hover to push other elements */
+  animation-play-state: paused; /* Pause the pulse animation on hover */
 }
 
 .tech-logos span {
