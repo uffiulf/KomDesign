@@ -98,6 +98,8 @@ h3 {
   gap: 1.5rem;
   margin-top: 2rem;
   padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle white background */
+  border-radius: 12px; /* Rounded corners */
 }
 
 .logo-pulsing {
