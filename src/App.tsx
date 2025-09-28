@@ -8,17 +8,54 @@ import webstormLogo from './assets/WebStorm_Icon.svg';
 import geminiLogo from './assets/Google_Gemini_logo.svg';
 import githubLogo from './assets/github.svg';
 
+// --- SVG Icon as a React Component ---
+const ArrowDownIcon = (props: { className?: string; }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <g>
+      <path d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,12,20Z"/>
+      <polygon points="12 12.586 8.707 9.293 7.293 10.707 12 15.414 16.707 10.707 15.293 9.293 12 12.586"/>
+    </g>
+  </svg>
+);
+
 function App() {
   // --- State for scroll animations ---
   const [h1Visible, setH1Visible] = useState(true);
   const [videoVisible, setVideoVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
 
+  // --- State for intro prompt ---
+  const [promptVisible, setPromptVisible] = useState(false);
+  const [typewriterText, setTypewriterText] = useState('');
+  const [typingFinished, setTypingFinished] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
+  const fullPromptText = "Begin scrollytale";
+
   // --- Refs and State for video crossfade ---
   const videoRef1 = useRef<HTMLVideoElement | null>(null);
   const videoRef2 = useRef<HTMLVideoElement | null>(null);
   const [activeVideo, setActiveVideo] = useState(1);
-  const FADE_DURATION = 1.5; // Must match CSS transition duration
+  const FADE_DURATION = 1.5;
+
+  // --- Effect for showing the intro prompt after a delay ---
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPromptVisible(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // --- Effect for the typewriter animation ---
+  useEffect(() => {
+    if (promptVisible && typewriterText.length < fullPromptText.length) {
+      const timeout = setTimeout(() => {
+        setTypewriterText(fullPromptText.slice(0, typewriterText.length + 1));
+      }, 100); // Typing speed
+      return () => clearTimeout(timeout);
+    } else if (promptVisible && typewriterText.length === fullPromptText.length) {
+      setTypingFinished(true);
+    }
+  }, [promptVisible, typewriterText]);
 
   // --- Scroll handling effect ---
   useEffect(() => {
@@ -37,8 +74,6 @@ function App() {
     const video = e.currentTarget;
     const v1 = videoRef1.current;
     const v2 = videoRef2.current;
-
-    // Guard against null refs
     if (!v1 || !v2) return;
 
     if (video.duration - video.currentTime < FADE_DURATION) {
@@ -59,6 +94,17 @@ function App() {
       <div className="scroll-container">
         <header className={`main-header ${h1Visible ? 'fade-in' : 'fade-out'}`}>
           <h1>The Game of Modes</h1>
+          <div className={`scroll-prompt ${promptVisible ? 'fade-in' : 'fade-out'}`}>
+            <p className={`typewriter ${typingFinished ? 'typing-finished' : ''}`}>{typewriterText}</p>
+            <div className="hint-container" onClick={() => setHintVisible(prev => !prev)}>
+              <ArrowDownIcon className={`arrow-down ${hintVisible ? 'morph-out' : ''}`} />
+              <div className={`hint-box ${hintVisible ? 'morph-in' : ''}`}>
+                <p className="hint-text">
+                  Hint: I'm not a button, just start scrolling
+                </p>
+              </div>
+            </div>
+          </div>
         </header>
 
         <div className={`background-video-container ${videoVisible ? 'fade-in' : 'fade-out'}`}>
