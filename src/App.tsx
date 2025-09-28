@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
+import type { SyntheticEvent } from 'react';
 import './App.css';
 import planetVideo from './assets/planet.mp4';
 import reactLogo from './assets/react-logo.png';
@@ -13,8 +14,8 @@ function App() {
   const [contentVisible, setContentVisible] = useState(false);
 
   // --- Refs and State for video crossfade ---
-  const videoRef1 = useRef(null);
-  const videoRef2 = useRef(null);
+  const videoRef1 = useRef<HTMLVideoElement | null>(null);
+  const videoRef2 = useRef<HTMLVideoElement | null>(null);
   const [activeVideo, setActiveVideo] = useState(1);
   const FADE_DURATION = 1.5; // Must match CSS transition duration
 
@@ -30,38 +31,27 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- Video crossfade handling effect ---
-  useEffect(() => {
+  // --- Video crossfade handler ---
+  const handleTimeUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
     const v1 = videoRef1.current;
     const v2 = videoRef2.current;
 
-    const handleTimeUpdate = (e) => {
-      const video = e.target;
-      if (video.duration - video.currentTime < FADE_DURATION) {
-        if (video === v1 && activeVideo === 1) {
-          setActiveVideo(2);
-          v2.currentTime = 0;
-          v2.play();
-        } else if (video === v2 && activeVideo === 2) {
-          setActiveVideo(1);
-          v1.currentTime = 0;
-          v1.play();
-        }
-      }
-    };
+    // Guard against null refs
+    if (!v1 || !v2) return;
 
-    if (v1 && v2) {
-      v1.addEventListener('timeupdate', handleTimeUpdate);
-      v2.addEventListener('timeupdate', handleTimeUpdate);
+    if (video.duration - video.currentTime < FADE_DURATION) {
+      if (video === v1 && activeVideo === 1) {
+        setActiveVideo(2);
+        v2.currentTime = 0;
+        v2.play().catch(err => console.error("Video 2 play failed:", err));
+      } else if (video === v2 && activeVideo === 2) {
+        setActiveVideo(1);
+        v1.currentTime = 0;
+        v1.play().catch(err => console.error("Video 1 play failed:", err));
+      }
     }
-
-    return () => {
-      if (v1 && v2) {
-        v1.removeEventListener('timeupdate', handleTimeUpdate);
-        v2.removeEventListener('timeupdate', handleTimeUpdate);
-      }
-    };
-  }, [activeVideo]);
+  };
 
   return (
     <>
@@ -78,6 +68,7 @@ function App() {
             loop
             muted
             playsInline
+            onTimeUpdate={handleTimeUpdate}
             className={`background-video ${activeVideo === 1 ? 'video-active' : 'video-inactive'}`}
           />
           <video
@@ -87,6 +78,7 @@ function App() {
             loop
             muted
             playsInline
+            onTimeUpdate={handleTimeUpdate}
             className={`background-video ${activeVideo === 2 ? 'video-active' : 'video-inactive'}`}
           />
         </div>
