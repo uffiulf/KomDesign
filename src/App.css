@@ -31,7 +31,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10; /* Ensure it's on top initially */
+  z-index: 2; /* Sørger for at den er over videoen */
   width: 100%;
 }
 
@@ -42,13 +42,13 @@ body {
   width: 100vw;
   height: 100vh;
   object-fit: cover; /* Cover the entire screen */
-  z-index: -1; /* Place it behind everything */
+  z-index: 1; /* Plasseres bak innholdet, men foran body */
 }
 
 .content-main {
   /* This content appears as you scroll down */
   position: relative; /* Needed to appear above the fixed video */
-  z-index: 5;
+  z-index: 2; /* Sørger for at den er over videoen */
   padding: 2rem;
   max-width: 800px; /* For readability */
   margin: 0 auto; /* Center the article */
