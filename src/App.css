@@ -31,6 +31,15 @@ body {
   50% { border-color: white; }
 }
 
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 /* --- Animation Classes --- */
 
 .fade-in {
@@ -44,6 +53,12 @@ body {
   pointer-events: none;
 }
 
+.zoomed-fade-in {
+  opacity: 1;
+  animation: zoomIn 1.5s ease-out;
+  transition: opacity 1.5s ease-in-out;
+}
+
 /* --- Layout and Main Elements --- */
 
 .main-header {
@@ -53,15 +68,15 @@ body {
   transform: translate(-50%, -50%);
   z-index: 10;
   width: 100%;
-  display: grid; /* Use grid to stack h1 and scroll-prompt */
+  display: grid;
   place-items: center;
 }
 
-.main-header > * { /* Make all direct children occupy the same space */
+.main-header > * { 
   grid-area: 1 / 1;
 }
 
-.main-header h1 {
+.main-title {
   font-size: 6rem;
   font-weight: bold;
   line-height: 1;
@@ -69,7 +84,7 @@ body {
 }
 
 .scroll-prompt {
-  margin-top: 0; /* Remove margin now that it's grid-placed */
+  margin-top: 0;
 }
 
 .typewriter {

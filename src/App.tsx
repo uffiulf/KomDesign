@@ -24,6 +24,8 @@ function App() {
   const [h1IsVisible, setH1IsVisible] = useState(false);
   const [videoIsVisible, setVideoIsVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [parallaxOffset, setParallaxOffset] = useState(0);
+  const [h1Scale, setH1Scale] = useState(0.9);
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -53,10 +55,33 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      const h1Start = 400;
+      const h1FullScale = 600;
+      const h1ShrinkStart = 900;
+      const h1End = 1200;
+
       setPromptIsVisible(scrollY < 50);
-      setH1IsVisible(scrollY > 100 && scrollY < 600);
       setVideoIsVisible(scrollY > 50);
-      setContentVisible(scrollY > 800);
+      setH1IsVisible(scrollY > h1Start && scrollY < h1End);
+      setContentVisible(scrollY > 1400);
+
+      if (scrollY > h1Start && scrollY < h1End) {
+        const scrollPastH1Start = scrollY - h1Start;
+        setParallaxOffset(scrollPastH1Start * 0.2);
+
+        if (scrollY < h1FullScale) {
+          const progress = (scrollY - h1Start) / (h1FullScale - h1Start);
+          setH1Scale(0.9 + progress * 0.1);
+        } else if (scrollY > h1ShrinkStart) {
+          const progress = (scrollY - h1ShrinkStart) / (h1End - h1ShrinkStart);
+          setH1Scale(1.0 - progress * 0.2);
+        } else {
+          setH1Scale(1.0);
+        }
+      } else {
+        setParallaxOffset(0);
+        setH1Scale(0.9);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -86,7 +111,9 @@ function App() {
     <>
       <div className="scroll-container">
         <header className="main-header">
-          <h1 className={h1IsVisible ? 'fade-in' : 'fade-out'}>The Game of Modes</h1>
+          <div style={{ transform: `translateY(${parallaxOffset}px) scale(${h1Scale})` }}>
+            <h1 className={`main-title ${h1IsVisible ? 'fade-in' : 'fade-out'}`}>The Game of Modes</h1>
+          </div>
           <div className={`scroll-prompt ${promptIsVisible ? 'fade-in' : 'fade-out'}`}>
             <p className={`typewriter ${typingFinished ? 'typing-finished' : ''}`}>{typewriterText}</p>
             <div className="hint-container" onClick={() => setHintVisible(prev => !prev)}>
@@ -123,7 +150,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '200vh' }}></div>
+        <div style={{ height: '250vh' }}></div>
 
         <main className={`content-main ${contentVisible ? 'fade-in' : 'fade-out'}`}>
           <article>
