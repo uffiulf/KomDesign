@@ -7,6 +7,7 @@ import reactLogo from './assets/react-logo.png';
 import webstormLogo from './assets/WebStorm_Icon.svg';
 import geminiLogo from './assets/Google_Gemini_logo.svg';
 import githubLogo from './assets/github.svg';
+import viteLogo from './assets/vite.svg';
 
 // --- SVG Icon as a React Component ---
 const ArrowDownIcon = (props: { className?: string; }) => (
@@ -21,11 +22,13 @@ const ArrowDownIcon = (props: { className?: string; }) => (
 function App() {
   // --- State for scroll animations ---
   const [promptIsVisible, setPromptIsVisible] = useState(true);
-  const [h1IsVisible, setH1IsVisible] = useState(false);
   const [videoIsVisible, setVideoIsVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
-  const [parallaxOffset, setParallaxOffset] = useState(0);
-  const [h1Scale, setH1Scale] = useState(0.9);
+  
+  // --- New state for H1 animation ---
+  const [h1Opacity, setH1Opacity] = useState(0);
+  const [h1Scale, setH1Scale] = useState(0.5);
+  const [h1Parallax, setH1Parallax] = useState(0);
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -55,32 +58,43 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const h1Start = 400;
-      const h1FullScale = 600;
-      const h1ShrinkStart = 900;
-      const h1End = 1200;
+
+      // Define animation phases
+      const fadeInStart = 400;
+      const fadeInEnd = 700;
+      const sinkStart = 700;
+      const fadeOutStart = 1000;
+      const fadeOutEnd = 1200;
 
       setPromptIsVisible(scrollY < 50);
       setVideoIsVisible(scrollY > 50);
-      setH1IsVisible(scrollY > h1Start && scrollY < h1End);
       setContentVisible(scrollY > 1400);
 
-      if (scrollY > h1Start && scrollY < h1End) {
-        const scrollPastH1Start = scrollY - h1Start;
-        setParallaxOffset(scrollPastH1Start * 0.2);
-
-        if (scrollY < h1FullScale) {
-          const progress = (scrollY - h1Start) / (h1FullScale - h1Start);
-          setH1Scale(0.9 + progress * 0.1);
-        } else if (scrollY > h1ShrinkStart) {
-          const progress = (scrollY - h1ShrinkStart) / (h1End - h1ShrinkStart);
-          setH1Scale(1.0 - progress * 0.2);
-        } else {
-          setH1Scale(1.0);
-        }
+      // --- H1 Animation Logic ---
+      if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
+        // Phase 1: Fade in and grow
+        const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
+        setH1Opacity(progress);
+        setH1Scale(0.5 + progress * 0.5); // from 0.5 to 1.0
+        setH1Parallax(0);
+      } else if (scrollY >= fadeInEnd && scrollY < fadeOutStart) {
+        // Phase 2: Hold and sink
+        setH1Opacity(1);
+        setH1Scale(1);
+        const parallaxProgress = (scrollY - sinkStart) * 0.2;
+        setH1Parallax(parallaxProgress);
+      } else if (scrollY >= fadeOutStart && scrollY < fadeOutEnd) {
+        // Phase 3: Fade out while sinking
+        const progress = (scrollY - fadeOutStart) / (fadeOutEnd - fadeOutStart);
+        setH1Opacity(1 - progress);
+        const parallaxProgress = (scrollY - sinkStart) * 0.2;
+        setH1Parallax(parallaxProgress);
+      } else if (scrollY >= fadeOutEnd) {
+        setH1Opacity(0);
       } else {
-        setParallaxOffset(0);
-        setH1Scale(0.9);
+        // Before it all starts
+        setH1Opacity(0);
+        setH1Scale(0.5);
       }
     };
     window.addEventListener('scroll', handleScroll);
@@ -111,8 +125,11 @@ function App() {
     <>
       <div className="scroll-container">
         <header className="main-header">
-          <div style={{ transform: `translateY(${parallaxOffset}px) scale(${h1Scale})` }}>
-            <h1 className={`main-title ${h1IsVisible ? 'fade-in' : 'fade-out'}`}>The Game of Modes</h1>
+          <div style={{ 
+            opacity: h1Opacity, 
+            transform: `translateY(${h1Parallax}px) scale(${h1Scale})` 
+          }}>
+            <h1 className="main-title">The Game of Modes</h1>
           </div>
           <div className={`scroll-prompt ${promptIsVisible ? 'fade-in' : 'fade-out'}`}>
             <p className={`typewriter ${typingFinished ? 'typing-finished' : ''}`}>{typewriterText}</p>
@@ -164,19 +181,15 @@ function App() {
               <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
                 <img src={reactLogo} className="logo-pulsing" alt="React logo" />
               </a>
-              <span>+</span>
               <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
-                <img src="/vite.svg" className="logo-pulsing" alt="Vite logo" />
+                <img src={viteLogo} className="logo-pulsing" alt="Vite logo" />
               </a>
-              <span>+</span>
               <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">
                 <img src={webstormLogo} className="logo-pulsing" alt="WebStorm logo" />
               </a>
-              <span>+</span>
               <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">
                 <img src={geminiLogo} className="logo-pulsing" alt="Gemini logo" />
               </a>
-              <span>+</span>
               <a href="https://github.com" target="_blank" rel="noopener noreferrer">
                 <img src={githubLogo} className="logo-pulsing" alt="GitHub logo" />
               </a>

@@ -31,16 +31,7 @@ body {
   50% { border-color: white; }
 }
 
-@keyframes zoomIn {
-  from {
-    transform: scale(0.9);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-/* --- Animation Classes --- */
+/* --- Animation Classes (for elements not controlled by JS scroll) --- */
 
 .fade-in {
   opacity: 1;
@@ -51,12 +42,6 @@ body {
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
   pointer-events: none;
-}
-
-.zoomed-fade-in {
-  opacity: 1;
-  animation: zoomIn 1.5s ease-out;
-  transition: opacity 1.5s ease-in-out;
 }
 
 /* --- Layout and Main Elements --- */
@@ -81,6 +66,7 @@ body {
   font-weight: bold;
   line-height: 1;
   margin: 0;
+  /* All animation is now handled by inline styles in App.tsx */
 }
 
 .scroll-prompt {
@@ -211,7 +197,8 @@ h3 {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
+  flex-wrap: wrap; /* Allows items to wrap to the next line */
+  gap: 1rem 1.5rem; /* Vertical and horizontal gap */
   margin-top: 2rem;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.1);
@@ -230,7 +217,10 @@ h3 {
   animation-play-state: paused;
 }
 
-.tech-logos span {
+/* Add a '+' sign between logos using CSS for robustness */
+.tech-logos a:not(:first-child)::before {
+  content: '+';
   font-size: 2em;
   font-weight: bold;
+  margin-right: 1.5rem;
 }
