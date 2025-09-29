@@ -11,6 +11,7 @@ import viteLogo from './assets/vite.svg';
 import roadImage from './assets/background-road.jpg';
 import forestVideo from './assets/forest.mp4';
 import audioFile from './assets/file_example_MP3_700KB.mp3';
+import explosionVideo from './assets/explosion.mp4';
 
 // --- SVG Icons ---
 const ArrowDownIcon = (props: { className?: string; }) => (
@@ -43,10 +44,11 @@ function App() {
   const [promptIsVisible, setPromptIsVisible] = useState(true);
   const [videoIsVisible, setVideoIsVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
-  
   const [h1Opacity, setH1Opacity] = useState(0);
   const [h1Scale, setH1Scale] = useState(0.5);
   const [h1Parallax, setH1Parallax] = useState(0);
+  const [showOutro, setShowOutro] = useState(false);
+  const [creditsVisible, setCreditsVisible] = useState(false);
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -54,15 +56,16 @@ function App() {
   const [hintVisible, setHintVisible] = useState(false);
   const fullPromptText = "Begin scrollytale";
 
-  // --- Refs and State for video crossfade ---
+  // --- Refs ---
   const videoRef1 = useRef<HTMLVideoElement | null>(null);
   const videoRef2 = useRef<HTMLVideoElement | null>(null);
-  const [activeVideo, setActiveVideo] = useState(1);
-  const FADE_DURATION = 1.5;
-
-  // --- Custom Audio Player State ---
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const explosionRef = useRef<HTMLVideoElement | null>(null);
+
+  // --- State ---
+  const [activeVideo, setActiveVideo] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const FADE_DURATION = 1.5;
 
   const togglePlayPause = async () => {
     const audio = audioPlayerRef.current;
@@ -82,7 +85,6 @@ function App() {
     }
   };
 
-  // --- Effect for the typewriter animation ---
   useEffect(() => {
     if (typewriterText.length < fullPromptText.length) {
       const timeout = setTimeout(() => {
@@ -94,10 +96,11 @@ function App() {
     }
   }, [typewriterText]);
 
-  // --- Scroll handling effect ---
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const outroStart = pageHeight - 500;
 
       const fadeInStart = 400;
       const fadeInEnd = 700;
@@ -106,8 +109,13 @@ function App() {
       const fadeOutEnd = 1200;
 
       setPromptIsVisible(scrollY < 50);
-      setVideoIsVisible(scrollY > 50);
-      setContentVisible(scrollY > 1400);
+      setVideoIsVisible(scrollY > 50 && scrollY < outroStart);
+      setContentVisible(scrollY > 1400 && scrollY < outroStart);
+      setShowOutro(scrollY >= outroStart);
+
+      if (scrollY >= outroStart) {
+        explosionRef.current?.play();
+      }
 
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
         const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
@@ -135,7 +143,6 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- Video crossfade handler ---
   const handleTimeUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
     const v1 = videoRef1.current;
@@ -201,7 +208,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '250vh' }}></div>
+        <div style={{ height: '350vh' }}></div>
 
         <main className={`content-main ${contentVisible ? 'fade-in' : 'fade-out'}`}>
           <article>
@@ -266,8 +273,26 @@ function App() {
             Lydfil fra file-examples.com.
           </p>
         </footer>
+
+        <div className={`outro-container ${showOutro ? 'fade-in' : 'fade-out'}`}>
+          <video 
+            ref={explosionRef} 
+            src={explosionVideo} 
+            muted 
+            playsInline 
+            className="explosion-video" 
+            onEnded={() => setCreditsVisible(true)} 
+          />
+          <div className={`final-credits ${creditsVisible ? 'fade-in' : 'fade-out'}`}>
+            <p>Alt er AI-generert med hjelp fra Gemini.</p>
+            <p>Instruktør: Olav Liljeberg</p>
+            <hr />
+            <p>Kilder:</p>
+            <p>Videoer og bilder fra Pexels.com</p>
+            <p>Lydfil fra file-examples.com</p>
+          </div>
+        </div>
         
-        <div style={{ height: '50vh' }}></div>
       </div>
     </>
   );

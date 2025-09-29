@@ -275,3 +275,35 @@ hr {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
 }
+
+/* --- Outro / Final Credits --- */
+
+.outro-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  z-index: 20; /* Ensure it's on top of everything */
+  display: grid;
+  place-items: center;
+}
+
+.explosion-video {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+}
+
+.final-credits {
+  position: absolute;
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.final-credits hr {
+  width: 50%;
+  margin: 2rem auto;
+}
