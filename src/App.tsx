@@ -58,7 +58,7 @@ function App() {
 
   // --- Countdown State ---
   const [countdown, setCountdown] = useState<number | null>(null);
-  const countdownInterval = useRef<NodeJS.Timeout | null>(null);
+  const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // --- Refs ---
   const videoRef1 = useRef<HTMLVideoElement | null>(null);
@@ -96,7 +96,7 @@ function App() {
     countdownInterval.current = setInterval(() => {
       setCountdown(prev => {
         if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval.current!);
+          if(countdownInterval.current) clearInterval(countdownInterval.current);
           setOutroTriggered(true);
           explosionRef.current?.play();
           return 0;
@@ -222,7 +222,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '250vh' }}></div>
+        <div style={{ height: '350vh' }}></div>
 
         <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
@@ -281,12 +281,9 @@ function App() {
 
             <div className="countdown-section">
               {countdown === null ? (
-                <>
-                  <p>Spill av</p>
-                  <button onClick={startCountdown} className="countdown-button">
-                    Start nedtellingen
-                  </button>
-                </>
+                <button onClick={startCountdown} className="countdown-button">
+                  Start nedtellingen
+                </button>
               ) : (
                 <div className="countdown-display">{countdown}</div>
               )}
@@ -313,7 +310,7 @@ function App() {
             onEnded={() => setCreditsVisible(true)} 
           />
           <div className={`final-credits ${creditsVisible ? 'fade-in' : 'fade-out'}`}>
-            <p>Kodeinnhold er AI-generert med hjelp fra Gemini.</p>
+            <p>Alt er AI-generert med hjelp fra Gemini.</p>
             <p>Instruktør: Olav Liljeberg</p>
             <hr />
             <p>Kilder:</p>
