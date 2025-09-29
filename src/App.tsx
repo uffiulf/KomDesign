@@ -284,7 +284,7 @@ function App() {
             onEnded={() => setCreditsVisible(true)} 
           />
           <div className={`final-credits ${creditsVisible ? 'fade-in' : 'fade-out'}`}>
-            <p>Alt er AI-generert med hjelp fra Gemini.</p>
+            <p>All kode er AI-generert med hjelp fra Gemini.</p>
             <p>Instruktør: Olav Liljeberg</p>
             <hr />
             <p>Kilder:</p>
