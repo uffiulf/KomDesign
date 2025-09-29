@@ -47,7 +47,7 @@ function App() {
   const [h1Opacity, setH1Opacity] = useState(0);
   const [h1Scale, setH1Scale] = useState(0.5);
   const [h1Parallax, setH1Parallax] = useState(0);
-  const [showOutro, setShowOutro] = useState(false);
+  const [outroTriggered, setOutroTriggered] = useState(false);
   const [creditsVisible, setCreditsVisible] = useState(false);
 
   // --- State for intro prompt ---
@@ -55,6 +55,10 @@ function App() {
   const [typingFinished, setTypingFinished] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
   const fullPromptText = "Begin scrollytale";
+
+  // --- Countdown State ---
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownInterval = useRef<NodeJS.Timeout | null>(null);
 
   // --- Refs ---
   const videoRef1 = useRef<HTMLVideoElement | null>(null);
@@ -85,6 +89,23 @@ function App() {
     }
   };
 
+  const startCountdown = () => {
+    if (countdown !== null) return; // Prevent multiple countdowns
+
+    setCountdown(300);
+    countdownInterval.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval.current!);
+          setOutroTriggered(true);
+          explosionRef.current?.play();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 10);
+  };
+
   useEffect(() => {
     if (typewriterText.length < fullPromptText.length) {
       const timeout = setTimeout(() => {
@@ -99,8 +120,6 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const outroStart = pageHeight - 500;
 
       const fadeInStart = 400;
       const fadeInEnd = 700;
@@ -109,13 +128,8 @@ function App() {
       const fadeOutEnd = 1200;
 
       setPromptIsVisible(scrollY < 50);
-      setVideoIsVisible(scrollY > 50 && scrollY < outroStart);
-      setContentVisible(scrollY > 1400 && scrollY < outroStart);
-      setShowOutro(scrollY >= outroStart);
-
-      if (scrollY >= outroStart) {
-        explosionRef.current?.play();
-      }
+      setVideoIsVisible(scrollY > 50);
+      setContentVisible(scrollY > 1400);
 
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
         const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
@@ -165,7 +179,7 @@ function App() {
   return (
     <>
       <div className="scroll-container">
-        <header className="main-header">
+        <header className={`main-header ${!outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <div style={{ 
             opacity: h1Opacity, 
             transform: `translateY(${h1Parallax}px) scale(${h1Scale})` 
@@ -185,7 +199,7 @@ function App() {
           </div>
         </header>
 
-        <div className={`background-video-container ${videoIsVisible ? 'fade-in' : 'fade-out'}`}>
+        <div className={`background-video-container ${videoIsVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <video
             ref={videoRef1}
             src={planetVideo}
@@ -208,9 +222,9 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '350vh' }}></div>
+        <div style={{ height: '250vh' }}></div>
 
-        <main className={`content-main ${contentVisible ? 'fade-in' : 'fade-out'}`}>
+        <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
             <h2>Text</h2>
             <p>
@@ -263,10 +277,25 @@ function App() {
               Ganske likt som lyd, egentlig. Jeg importerte en videofil og la den i en `&lt;video&gt;`-tag med `controls`. Alternativt kunne jeg brukt en YouTube- eller Vimeo-embed for å vise en video fra nettet.
             </p>
 
+            <hr />
+
+            <div className="countdown-section">
+              {countdown === null ? (
+                <>
+                  <p>Spill av</p>
+                  <button onClick={startCountdown} className="countdown-button">
+                    Start nedtellingen
+                  </button>
+                </>
+              ) : (
+                <div className="countdown-display">{countdown}</div>
+              )}
+            </div>
+
           </article>
         </main>
 
-        <footer className={`content-footer ${contentVisible ? 'fade-in' : 'fade-out'}`}>
+        <footer className={`content-footer ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <p>
             Bakgrunnsvideo (planet) og innholds-ressurser (bilde, skogsvideo) fra Pexels.com.
             <br />
@@ -274,7 +303,7 @@ function App() {
           </p>
         </footer>
 
-        <div className={`outro-container ${showOutro ? 'fade-in' : 'fade-out'}`}>
+        <div className={`outro-container ${outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <video 
             ref={explosionRef} 
             src={explosionVideo} 
@@ -284,7 +313,7 @@ function App() {
             onEnded={() => setCreditsVisible(true)} 
           />
           <div className={`final-credits ${creditsVisible ? 'fade-in' : 'fade-out'}`}>
-            <p>All kode er AI-generert med hjelp fra Gemini.</p>
+            <p>Kodeinnhold er AI-generert med hjelp fra Gemini.</p>
             <p>Instruktør: Olav Liljeberg</p>
             <hr />
             <p>Kilder:</p>

@@ -307,3 +307,30 @@ hr {
   width: 50%;
   margin: 2rem auto;
 }
+
+.countdown-section {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.countdown-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.countdown-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.countdown-display {
+  font-family: monospace;
+  font-size: 5rem;
+  font-weight: bold;
+  color: #fff;
+}
