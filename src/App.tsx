@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
-import type { SyntheticEvent } from 'react';
+import type { SVGProps, SyntheticEvent } from 'react';
 import './App.css';
 import planetVideo from './assets/planet.mp4';
 import reactLogo from './assets/react-logo.png';
@@ -8,8 +8,11 @@ import webstormLogo from './assets/WebStorm_Icon.svg';
 import geminiLogo from './assets/Google_Gemini_logo.svg';
 import githubLogo from './assets/github.svg';
 import viteLogo from './assets/vite.svg';
+import roadImage from './assets/background-road.jpg';
+import forestVideo from './assets/forest.mp4';
+import audioFile from './assets/file_example_MP3_700KB.mp3';
 
-// --- SVG Icon as a React Component ---
+// --- SVG Icons ---
 const ArrowDownIcon = (props: { className?: string; }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
     <g>
@@ -19,13 +22,28 @@ const ArrowDownIcon = (props: { className?: string; }) => (
   </svg>
 );
 
+export function MediaPlay(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" {...props}>
+      <path fill="currentColor" d="M10.396 18.433L17 12l-6.604-6.433A2 2 0 0 0 7 7v10a2 2 0 0 0 3.396 1.433"></path>
+    </svg>
+  )
+}
+
+export function MediaPause(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" {...props}>
+      <path fill="currentColor" d="M9 19V5h2v14zm4 0V5h2v14z"></path>
+    </svg>
+  )
+}
+
 function App() {
   // --- State for scroll animations ---
   const [promptIsVisible, setPromptIsVisible] = useState(true);
   const [videoIsVisible, setVideoIsVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
   
-  // --- New state for H1 animation ---
   const [h1Opacity, setH1Opacity] = useState(0);
   const [h1Scale, setH1Scale] = useState(0.5);
   const [h1Parallax, setH1Parallax] = useState(0);
@@ -41,6 +59,28 @@ function App() {
   const videoRef2 = useRef<HTMLVideoElement | null>(null);
   const [activeVideo, setActiveVideo] = useState(1);
   const FADE_DURATION = 1.5;
+
+  // --- Custom Audio Player State ---
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlayPause = async () => {
+    const audio = audioPlayerRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.error("Audio play failed:", err);
+        setIsPlaying(false);
+      }
+    }
+  };
 
   // --- Effect for the typewriter animation ---
   useEffect(() => {
@@ -59,7 +99,6 @@ function App() {
     const handleScroll = () => {
       const scrollY = window.scrollY;
 
-      // Define animation phases
       const fadeInStart = 400;
       const fadeInEnd = 700;
       const sinkStart = 700;
@@ -70,21 +109,17 @@ function App() {
       setVideoIsVisible(scrollY > 50);
       setContentVisible(scrollY > 1400);
 
-      // --- H1 Animation Logic ---
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
-        // Phase 1: Fade in and grow
         const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
         setH1Opacity(progress);
-        setH1Scale(0.5 + progress * 0.5); // from 0.5 to 1.0
+        setH1Scale(0.5 + progress * 0.5);
         setH1Parallax(0);
       } else if (scrollY >= fadeInEnd && scrollY < fadeOutStart) {
-        // Phase 2: Hold and sink
         setH1Opacity(1);
         setH1Scale(1);
         const parallaxProgress = (scrollY - sinkStart) * 0.2;
         setH1Parallax(parallaxProgress);
       } else if (scrollY >= fadeOutStart && scrollY < fadeOutEnd) {
-        // Phase 3: Fade out while sinking
         const progress = (scrollY - fadeOutStart) / (fadeOutEnd - fadeOutStart);
         setH1Opacity(1 - progress);
         const parallaxProgress = (scrollY - sinkStart) * 0.2;
@@ -92,7 +127,6 @@ function App() {
       } else if (scrollY >= fadeOutEnd) {
         setH1Opacity(0);
       } else {
-        // Before it all starts
         setH1Opacity(0);
         setH1Scale(0.5);
       }
@@ -172,10 +206,8 @@ function App() {
         <main className={`content-main ${contentVisible ? 'fade-in' : 'fade-out'}`}>
           <article>
             <h2>Text</h2>
-            <h3>"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."</h3>
             <p>
-                I denne oppgaven har jeg lastet ned react + vite.
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras non accumsan lacus. Maecenas a elementum neque. Integer iaculis congue erat in bibendum. Integer ac mi euismod, convallis est id, convallis ante. Suspendisse laoreet tortor convallis tortor pellentesque, lacinia molestie ligula rhoncus. Vestibulum luctus tincidunt turpis nec convallis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sagittis sit amet magna vel posuere. Praesent ac porta tortor. Sed libero dui, iaculis et tellus tempor, hendrerit blandit diam. Fusce iaculis quam justo, eu efficitur mi mollis quis. Donec suscipit felis ante, elementum vulputate nulla malesuada ut. Nulla varius porta turpis eu semper. Nam in nunc vel nulla luctus ultricies. Ut at fringilla nunc. Ut sed congue nisi.
+              Her har jeg brukt standard HTML-tags som h1, h2, h3 og p for å strukturere og vise ren tekst. Dette er den mest grunnleggende modusen for webinnhold. Alternativt kunne jeg ha brukt et bibliotek som Markdown for å skrive og formatere teksten enklere.
             </p>
             <div className="tech-logos">
               <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
@@ -194,8 +226,46 @@ function App() {
                 <img src={githubLogo} className="logo-pulsing" alt="GitHub logo" />
               </a>
             </div>
+
+            <hr />
+
+            <h2>Photo</h2>
+            <img src={roadImage} alt="Landevei" className="content-media" />
+            <p>
+              Her har jeg lagt inn et bilde. Jeg importerte det fra `assets`-mappen og brukte en vanlig `&lt;img&gt;`-tag. Et alternativ kunne vært å linke til et bilde som ligger på en annen nettside.
+            </p>
+
+            <hr />
+
+            <h2>Audio</h2>
+            <div className="custom-audio-player">
+              <audio ref={audioPlayerRef} src={audioFile} onEnded={() => setIsPlaying(false)} />
+              <button onClick={togglePlayPause} className="play-pause-button">
+                {isPlaying ? <MediaPause /> : <MediaPlay />}
+              </button>
+            </div>
+            <p>
+              Her byttet jeg ut standard-spilleren med en egen knapp. Jeg bruker React for å holde styr på om lyden spilles av eller ikke, og bytter mellom et play- og pause-ikon. Dette gir full kontroll over utseendet.
+            </p>
+
+            <hr />
+
+            <h2>Video</h2>
+            <video src={forestVideo} controls className="content-media" />
+            <p>
+              Ganske likt som lyd, egentlig. Jeg importerte en videofil og la den i en `&lt;video&gt;`-tag med `controls`. Alternativt kunne jeg brukt en YouTube- eller Vimeo-embed for å vise en video fra nettet.
+            </p>
+
           </article>
         </main>
+
+        <footer className={`content-footer ${contentVisible ? 'fade-in' : 'fade-out'}`}>
+          <p>
+            Bakgrunnsvideo (planet) og innholds-ressurser (bilde, skogsvideo) fra Pexels.com.
+            <br />
+            Lydfil fra file-examples.com.
+          </p>
+        </footer>
         
         <div style={{ height: '50vh' }}></div>
       </div>
