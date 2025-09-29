@@ -346,7 +346,6 @@ hr {
   opacity: 0;
   transition: background 1s ease, opacity 1s ease;
   z-index: 30; /* Above content and header, below outro (20 -> adjust) */
-  pointer-events: none;
 }
 .countdown-overlay.active {
   background: #000;
@@ -354,6 +353,11 @@ hr {
 }
 .countdown-overlay.hidden {
   display: none;
+}
+
+.countdown-overlay.after {
+  /* Ligger over header (10) og content (5), men under eksplosjon (20) */
+  z-index: 19;
 }
 
 .countdown-number {

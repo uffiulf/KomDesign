@@ -124,11 +124,11 @@ function App() {
   }, [countdown]);
 
   // Hide overlay once outro starts (explosion takes over)
-  useEffect(() => {
-    if (outroTriggered) {
-      setOverlayActive(false);
-    }
-  }, [outroTriggered]);
+  // useEffect(() => {
+  //   if (outroTriggered) {
+  //     setOverlayActive(false);
+  //   }
+  // }, [outroTriggered]);
 
   useEffect(() => {
     if (typewriterText.length < fullPromptText.length) {
@@ -203,14 +203,16 @@ function App() {
   return (
     <>
       <div className="scroll-container">
-        {/* Countdown fullscreen overlay */}
-        <div className={`countdown-overlay ${overlayActive ? 'active' : ''} ${outroTriggered ? 'hidden' : ''}`}>
-          {displayedSeconds !== null && displayedSeconds >= 0 && !outroTriggered && (
-            <div key={displayedSeconds} className="countdown-number pop-once">
-              {displayedSeconds}
-            </div>
-          )}
-        </div>
+        {/* Countdown fullscreen overlay (renderes først etter start eller i outro) */}
+        {(overlayActive || outroTriggered) && (
+          <div className={`countdown-overlay ${overlayActive ? 'active' : ''} ${outroTriggered ? 'after' : ''}`}>
+            {displayedSeconds !== null && displayedSeconds > 0 && !outroTriggered && (
+              <div key={displayedSeconds} className="countdown-number pop-once">
+                {displayedSeconds}
+              </div>
+            )}
+          </div>
+        )}
 
         <header className={`main-header ${!outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <div style={{ 
