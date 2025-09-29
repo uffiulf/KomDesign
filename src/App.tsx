@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import type { SVGProps, SyntheticEvent } from 'react';
 import './App.css';
@@ -59,6 +58,9 @@ function App() {
   // --- Countdown State ---
   const [countdown, setCountdown] = useState<number | null>(null);
   const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  // New: overlay + displayed seconds
+  const [overlayActive, setOverlayActive] = useState(false);
+  const [displayedSeconds, setDisplayedSeconds] = useState<number | null>(null);
 
   // --- Refs ---
   const videoRef1 = useRef<HTMLVideoElement | null>(null);
@@ -91,20 +93,42 @@ function App() {
 
   const startCountdown = () => {
     if (countdown !== null) return; // Prevent multiple countdowns
-
-    setCountdown(300);
-    countdownInterval.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          if(countdownInterval.current) clearInterval(countdownInterval.current);
-          setOutroTriggered(true);
-          explosionRef.current?.play();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 10);
+    setCountdown(300); // 3 seconds at 10ms steps
+    setOverlayActive(true); // Activate fade to black
   };
+
+  // Effect to handle the countdown interval
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown <= 0) {
+      setOutroTriggered(true);
+      explosionRef.current?.play().catch(err => console.error("Explosion play failed:", err));
+      return;
+    }
+
+    countdownInterval.current = setInterval(() => {
+      setCountdown(prev => (prev ? prev - 1 : 0));
+    }, 10);
+
+    return () => {
+      if (countdownInterval.current) clearInterval(countdownInterval.current);
+    };
+  }, [countdown]);
+
+  // Update displayed seconds (ceil so 300..201 -> 3, 200..101 -> 2, 100..1 -> 1, 0 -> 0)
+  useEffect(() => {
+    if (countdown === null) return;
+    const secs = Math.ceil(countdown / 100);
+    setDisplayedSeconds(secs);
+  }, [countdown]);
+
+  // Hide overlay once outro starts (explosion takes over)
+  useEffect(() => {
+    if (outroTriggered) {
+      setOverlayActive(false);
+    }
+  }, [outroTriggered]);
 
   useEffect(() => {
     if (typewriterText.length < fullPromptText.length) {
@@ -129,7 +153,7 @@ function App() {
 
       setPromptIsVisible(scrollY < 50);
       setVideoIsVisible(scrollY > 50);
-      setContentVisible(scrollY > 1400);
+      setContentVisible(scrollY > 1200);
 
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
         const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
@@ -179,6 +203,15 @@ function App() {
   return (
     <>
       <div className="scroll-container">
+        {/* Countdown fullscreen overlay */}
+        <div className={`countdown-overlay ${overlayActive ? 'active' : ''} ${outroTriggered ? 'hidden' : ''}`}>
+          {displayedSeconds !== null && displayedSeconds >= 0 && !outroTriggered && (
+            <div key={displayedSeconds} className="countdown-number pop-once">
+              {displayedSeconds}
+            </div>
+          )}
+        </div>
+
         <header className={`main-header ${!outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <div style={{ 
             opacity: h1Opacity, 
@@ -222,7 +255,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '350vh' }}></div>
+        <div style={{ height: '150vh' }}></div>
 
         <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
@@ -284,21 +317,11 @@ function App() {
                 <button onClick={startCountdown} className="countdown-button">
                   Start nedtellingen
                 </button>
-              ) : (
-                <div className="countdown-display">{countdown}</div>
-              )}
+              ) : null}
             </div>
 
           </article>
         </main>
-
-        <footer className={`content-footer ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
-          <p>
-            Bakgrunnsvideo (planet) og innholds-ressurser (bilde, skogsvideo) fra Pexels.com.
-            <br />
-            Lydfil fra file-examples.com.
-          </p>
-        </footer>
 
         <div className={`outro-container ${outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <video 
@@ -310,12 +333,13 @@ function App() {
             onEnded={() => setCreditsVisible(true)} 
           />
           <div className={`final-credits ${creditsVisible ? 'fade-in' : 'fade-out'}`}>
-            <p>Alt er AI-generert med hjelp fra Gemini.</p>
+            <p>Koden er generert av Gemini Agent.</p>
             <p>Instruktør: Olav Liljeberg</p>
             <hr />
             <p>Kilder:</p>
-            <p>Videoer og bilder fra Pexels.com</p>
+            <p>Videoer (planet, skog, eksplosjon) og bilde (landevei) fra Pexels.com</p>
             <p>Lydfil fra file-examples.com</p>
+            <p>Ikoner fra: flowbite.com, reactsvgicons.com, commons.wikimedia.org, reshot.com</p>
           </div>
         </div>
         

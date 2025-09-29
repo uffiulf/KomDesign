@@ -334,3 +334,42 @@ hr {
   font-weight: bold;
   color: #fff;
 }
+
+/* Fullscreen countdown overlay */
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0);
+  opacity: 0;
+  transition: background 1s ease, opacity 1s ease;
+  z-index: 30; /* Above content and header, below outro (20 -> adjust) */
+  pointer-events: none;
+}
+.countdown-overlay.active {
+  background: #000;
+  opacity: 1;
+}
+.countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-number {
+  font-size: clamp(4rem, 22vw, 14rem);
+  font-weight: 800;
+  font-family: 'Arial Black', Impact, sans-serif;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 18px rgba(255,255,255,0.5), 0 0 40px rgba(120,160,255,0.35);
+  animation: countdown-pop 0.9s ease forwards;
+  letter-spacing: -0.03em;
+}
+
+@keyframes countdown-pop {
+  0% { transform: scale(0.2); opacity: 0; }
+  30% { transform: scale(1); opacity: 1; }
+  60% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0; }
+}
