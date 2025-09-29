@@ -35,16 +35,16 @@ body {
 
 .fade-in {
   opacity: 1;
-  transition: opacity 1.5s ease-in-out;
+  transition: opacity 1s ease-in-out;
 }
 
 .fade-out {
   opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  pointer-events: none; /* Allow clicks to pass through invisible elements */
+  transition: opacity 1s ease-in-out;
+  pointer-events: none;
 }
 
-/* --- Layout and Main Elements --- */
+/* --- Header and Video Text Effect (Final Correct Method) --- */
 
 .main-header {
   position: fixed;
@@ -55,6 +55,45 @@ body {
   width: 100%;
 }
 
+.video-text-container {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate; /* This is the key: it creates a new stacking context for the blend mode */
+}
+
+.header-video,
+.video-text-base,
+.video-text-mask {
+  grid-area: 1 / 1;
+  font-size: 6rem;
+  font-weight: bold;
+  line-height: 1;
+  margin: 0;
+  text-align: center;
+}
+
+.header-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1; /* Bottom layer */
+}
+
+.video-text-base {
+  color: white;
+  z-index: 2; /* Middle layer */
+}
+
+.video-text-mask {
+  background-color: black; /* CORRECTED */
+  color: white;            /* CORRECTED */
+  mix-blend-mode: multiply;/* CORRECTED */
+  z-index: 3; /* Top layer */
+}
+
+/* --- Scroll Prompt and Hint --- */
+
 .scroll-prompt {
   margin-top: 2rem;
 }
@@ -62,7 +101,7 @@ body {
 .typewriter {
   font-family: monospace;
   font-size: 1.2rem;
-  border-right: .15em solid white; /* The typewriter cursor */
+  border-right: .15em solid white;
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
@@ -74,11 +113,9 @@ body {
   border-right-color: transparent;
 }
 
-/* --- Hint Morphing Animation --- */
-
 .hint-container {
   position: relative;
-  height: 80px; /* Give the container enough space for the box */
+  height: 80px;
   margin-top: 1rem;
   cursor: pointer;
 }
@@ -105,8 +142,8 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   padding: 1rem;
-  width: 250px; /* Set a width for the box */
-  box-sizing: border-box; /* Ensure padding is included in the width */
+  width: 250px;
+  box-sizing: border-box;
 }
 
 .hint-text {
@@ -117,17 +154,18 @@ body {
   text-align: center;
 }
 
-/* Morphing classes */
 .arrow-down.morph-out {
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
-  animation-play-state: paused; /* Stop bobbing during morph */
+  animation-play-state: paused;
 }
 
 .hint-box.morph-in {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
+
+/* --- Main Content --- */
 
 .content-main {
   position: relative;
@@ -145,35 +183,6 @@ body {
 
 h3 {
   font-style: italic;
-}
-
-/* --- Video Crossfade Styling --- */
-
-.background-video-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-}
-
-.background-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 1.5s ease-in-out;
-}
-
-.video-active {
-  opacity: 1;
-}
-
-.video-inactive {
-  opacity: 0;
 }
 
 /* --- Tech Logos Section --- */

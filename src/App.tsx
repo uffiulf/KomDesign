@@ -1,8 +1,7 @@
 
-import { useState, useEffect, useRef } from 'react';
-import type { SyntheticEvent } from 'react';
+import { useState, useEffect } from 'react';
+// import type { SyntheticEvent } from 'react'; // No longer needed
 import './App.css';
-import planetVideo from './assets/planet.mp4';
 import reactLogo from './assets/react-logo.png';
 import webstormLogo from './assets/WebStorm_Icon.svg';
 import geminiLogo from './assets/Google_Gemini_logo.svg';
@@ -20,8 +19,7 @@ const ArrowDownIcon = (props: { className?: string; }) => (
 
 function App() {
   // --- State for scroll animations ---
-  const [h1Visible, setH1Visible] = useState(true);
-  const [videoVisible, setVideoVisible] = useState(false);
+  const [h1IsVisible, setH1IsVisible] = useState(true);
   const [contentVisible, setContentVisible] = useState(false);
 
   // --- State for intro prompt ---
@@ -30,12 +28,6 @@ function App() {
   const [typingFinished, setTypingFinished] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
   const fullPromptText = "Begin scrollytale";
-
-  // --- Refs and State for video crossfade ---
-  const videoRef1 = useRef<HTMLVideoElement | null>(null);
-  const videoRef2 = useRef<HTMLVideoElement | null>(null);
-  const [activeVideo, setActiveVideo] = useState(1);
-  const FADE_DURATION = 1.5;
 
   // --- Effect for showing the intro prompt after a delay ---
   useEffect(() => {
@@ -50,7 +42,7 @@ function App() {
     if (promptVisible && typewriterText.length < fullPromptText.length) {
       const timeout = setTimeout(() => {
         setTypewriterText(fullPromptText.slice(0, typewriterText.length + 1));
-      }, 100); // Typing speed
+      }, 100);
       return () => clearTimeout(timeout);
     } else if (promptVisible && typewriterText.length === fullPromptText.length) {
       setTypingFinished(true);
@@ -61,39 +53,23 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      setVideoVisible(scrollY > 50);
-      setH1Visible(scrollY < 250);
+      setH1IsVisible(scrollY < 300);
       setContentVisible(scrollY > 500);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- Video crossfade handler ---
-  const handleTimeUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget;
-    const v1 = videoRef1.current;
-    const v2 = videoRef2.current;
-    if (!v1 || !v2) return;
-
-    if (video.duration - video.currentTime < FADE_DURATION) {
-      if (video === v1 && activeVideo === 1) {
-        setActiveVideo(2);
-        v2.currentTime = 0;
-        v2.play().catch(err => console.error("Video 2 play failed:", err));
-      } else if (video === v2 && activeVideo === 2) {
-        setActiveVideo(1);
-        v1.currentTime = 0;
-        v1.play().catch(err => console.error("Video 1 play failed:", err));
-      }
-    }
-  };
-
   return (
     <>
       <div className="scroll-container">
-        <header className={`main-header ${h1Visible ? 'fade-in' : 'fade-out'}`}>
-          <h1>The Game of Modes</h1>
+        <header className={`main-header ${h1IsVisible ? 'fade-in' : 'fade-out'}`}>
+          
+          <div className="video-text-container">
+            <video src="/planet.mp4" autoPlay loop muted playsInline className="header-video" />
+            <h1 className="video-text-mask">The Game of Modes</h1>
+          </div>
+
           <div className={`scroll-prompt ${promptVisible ? 'fade-in' : 'fade-out'}`}>
             <p className={`typewriter ${typingFinished ? 'typing-finished' : ''}`}>{typewriterText}</p>
             <div className="hint-container" onClick={() => setHintVisible(prev => !prev)}>
@@ -106,29 +82,6 @@ function App() {
             </div>
           </div>
         </header>
-
-        <div className={`background-video-container ${videoVisible ? 'fade-in' : 'fade-out'}`}>
-          <video
-            ref={videoRef1}
-            src={planetVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onTimeUpdate={handleTimeUpdate}
-            className={`background-video ${activeVideo === 1 ? 'video-active' : 'video-inactive'}`}
-          />
-          <video
-            ref={videoRef2}
-            src={planetVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onTimeUpdate={handleTimeUpdate}
-            className={`background-video ${activeVideo === 2 ? 'video-active' : 'video-inactive'}`}
-          />
-        </div>
 
         <div style={{ height: '200vh' }}></div>
 
