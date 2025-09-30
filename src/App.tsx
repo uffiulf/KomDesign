@@ -257,7 +257,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '150vh' }}></div>
+        <div style={{ height: '200vh' }}></div>
 
         <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
