@@ -49,6 +49,7 @@ function App() {
   const [outroTriggered, setOutroTriggered] = useState(false);
   const [creditsVisible, setCreditsVisible] = useState(false);
   const [headerInteractive, setHeaderInteractive] = useState(true); // NEW: control pointer events over content
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -143,6 +144,12 @@ function App() {
   }, [typewriterText]);
 
   useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
 
@@ -151,7 +158,7 @@ function App() {
       const sinkStart = 700;
       const fadeOutStart = 1000;
       const fadeOutEnd = 1200;
-      const contentRevealDelay = 500; // ekstra forsinkelse etter at h1 er helt ute
+      const contentRevealDelay = isMobile ? 120 : 500; // mindre forsinkelse på mobil
       const contentRevealStart = fadeOutEnd + contentRevealDelay;
 
       setPromptIsVisible(scrollY < 50);
@@ -185,7 +192,7 @@ function App() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobile]);
 
   const handleTimeUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
@@ -263,7 +270,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '200vh' }}></div>
+        <div style={{ height: isMobile ? '130vh' : '200vh' }}></div>
 
         <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
