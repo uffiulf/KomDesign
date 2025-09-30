@@ -50,6 +50,7 @@ function App() {
   const [creditsVisible, setCreditsVisible] = useState(false);
   const [headerInteractive, setHeaderInteractive] = useState(true); // NEW: control pointer events over content
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
+  const sentinelRef = useRef<HTMLDivElement | null>(null); // NEW: observer trigger
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -149,6 +150,21 @@ function App() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // IntersectionObserver to reveal content earlier & consistently
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setContentVisible(true);
+          observer.disconnect();
+        }
+      });
+    }, { root: null, threshold: 0.1 });
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -158,14 +174,11 @@ function App() {
       const sinkStart = 700;
       const fadeOutStart = 1000;
       const fadeOutEnd = 1200;
-      const contentRevealDelay = isMobile ? 120 : 500; // mindre forsinkelse på mobil
-      const contentRevealStart = fadeOutEnd + contentRevealDelay;
 
       setPromptIsVisible(scrollY < 50);
       setVideoIsVisible(scrollY > 50);
-      setContentVisible(scrollY > contentRevealStart);
+      // contentVisible nå kontrollert av IntersectionObserver
 
-      // Disable header interactions once we pass fadeOutStart so it doesn't block clicks
       setHeaderInteractive(scrollY < fadeOutStart);
 
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
@@ -270,9 +283,10 @@ function App() {
           />
         </div>
 
-        <div style={{ height: isMobile ? '130vh' : '200vh' }}></div>
+        <div style={{ height: isMobile ? '140vh' : '200vh' }}></div>
+        <div ref={sentinelRef} style={{ height: 1 }} />
 
-        <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
+        <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'} ${isMobile ? 'mobile-content' : ''}`}>
           <article>
             <h2>Text</h2>
             <p>
