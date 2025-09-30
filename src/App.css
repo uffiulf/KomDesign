@@ -346,10 +346,12 @@ hr {
   opacity: 0;
   transition: background 1s ease, opacity 1s ease;
   z-index: 30; /* Above content and header, below outro (20 -> adjust) */
+  pointer-events: none; /* Ikke blokker klikk når inaktiv */
 }
 .countdown-overlay.active {
   background: #000;
   opacity: 1;
+  pointer-events: auto; /* Blokker klikk mens nedtellingen vises */
 }
 .countdown-overlay.hidden {
   display: none;
@@ -358,6 +360,7 @@ hr {
 .countdown-overlay.after {
   /* Ligger over header (10) og content (5), men under eksplosjon (20) */
   z-index: 19;
+  pointer-events: none; /* Ikke blokker interaksjon etter nedtellingen */
 }
 
 .countdown-number {

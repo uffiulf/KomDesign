@@ -48,6 +48,7 @@ function App() {
   const [h1Parallax, setH1Parallax] = useState(0);
   const [outroTriggered, setOutroTriggered] = useState(false);
   const [creditsVisible, setCreditsVisible] = useState(false);
+  const [headerInteractive, setHeaderInteractive] = useState(true); // NEW: control pointer events over content
 
   // --- State for intro prompt ---
   const [typewriterText, setTypewriterText] = useState('');
@@ -155,6 +156,9 @@ function App() {
       setVideoIsVisible(scrollY > 50);
       setContentVisible(scrollY > 1200);
 
+      // Disable header interactions once we pass fadeOutStart so it doesn't block clicks
+      setHeaderInteractive(scrollY < fadeOutStart);
+
       if (scrollY >= fadeInStart && scrollY < fadeInEnd) {
         const progress = (scrollY - fadeInStart) / (fadeInEnd - fadeInStart);
         setH1Opacity(progress);
@@ -214,8 +218,8 @@ function App() {
           </div>
         )}
 
-        <header className={`main-header ${!outroTriggered ? 'fade-in' : 'fade-out'}`}>
-          <div style={{ 
+        <header className={`main-header ${!outroTriggered ? 'fade-in' : 'fade-out'}`} style={{ pointerEvents: headerInteractive ? 'auto' : 'none' }}>
+          <div style={{
             opacity: h1Opacity, 
             transform: `translateY(${h1Parallax}px) scale(${h1Scale})` 
           }}>
