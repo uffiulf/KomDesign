@@ -151,10 +151,12 @@ function App() {
       const sinkStart = 700;
       const fadeOutStart = 1000;
       const fadeOutEnd = 1200;
+      const contentRevealDelay = 500; // ekstra forsinkelse etter at h1 er helt ute
+      const contentRevealStart = fadeOutEnd + contentRevealDelay;
 
       setPromptIsVisible(scrollY < 50);
       setVideoIsVisible(scrollY > 50);
-      setContentVisible(scrollY > 1200);
+      setContentVisible(scrollY > contentRevealStart);
 
       // Disable header interactions once we pass fadeOutStart so it doesn't block clicks
       setHeaderInteractive(scrollY < fadeOutStart);
@@ -261,7 +263,7 @@ function App() {
           />
         </div>
 
-        <div style={{ height: '150vh' }}></div>
+        <div style={{ height: '200vh' }}></div>
 
         <main className={`content-main ${contentVisible && !outroTriggered ? 'fade-in' : 'fade-out'}`}>
           <article>
