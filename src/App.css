@@ -288,12 +288,17 @@ hr {
   z-index: 20; /* Ensure it's on top of everything */
   display: grid;
   place-items: center;
+  overflow: hidden; /* Hindrer at rotert video stikker utenfor */
 }
 
 .explosion-video {
-  width: 100%;
-  max-width: 800px;
-  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  max-width: none; /* Fjern tidligere begrensning */
 }
 
 .final-credits {
@@ -380,3 +385,17 @@ hr {
   60% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0.9); opacity: 0; }
 }
+
+/* Mobil (portrett) – roter 90 grader og tilpass dimensjoner slik at hele skjermen dekkes */
+@media (max-width: 768px) and (orientation: portrait) {
+  .explosion-video {
+    top: 50%;
+    left: 50%;
+    width: 100vh; /* Bytter om fordi vi roterer */
+    height: 100vw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    object-fit: cover;
+  }
+}
+
+/* Hvis mobil i landscape skal bare følge desktop-oppsettet (ingen ekstra regler nødvendig) */
